@@ -1,0 +1,130 @@
+"""
+Copyright (c) 2018, Jairus Martin.
+
+Distributed under the terms of the MIT License.
+
+The full license is in the file LICENSE, distributed with this software.
+
+Created on Jun 19, 2018
+
+@author: jrm
+"""
+from atom.api import Enum
+from web.components.api import Div, Footer, Nav, A, Ul, Li, Img, Span
+from web.core.api import Block, Looper, Conditional
+
+
+# ==============================================================================
+# Grid components
+# ==============================================================================
+enamldef Container(Div):
+    attr color: str = ''
+    cls << ' '.join(('container', color))
+    tag = 'div'
+    
+
+enamldef Row(Div):
+    attr color: str = ''
+    cls << ' '.join(('row', color))
+    tag = 'div'
+
+    
+enamldef Col(Div):
+    attr size: str = 'l12'
+    attr color: str = ''
+    tag = 'div'
+    cls << ' '.join(('col', size, color))
+
+
+# ==============================================================================
+# Footer components
+# ==============================================================================
+enamldef PageFooter(Footer):
+    tag = 'footer'
+    attr color: str = ''
+    cls << ' '.join(('page-footer', color))
+
+enamldef PageCopyright(Div):
+    tag = 'div'
+    attr color: str = ''
+    cls << ' '.join(('footer-copyright', color))
+            
+# ==============================================================================
+# Navbar components
+# ==============================================================================
+enamldef BasicNavbar(Nav):
+    tag = 'nav'
+    
+    #: Alias to the title component
+    alias title
+    
+    #: left, right, center
+    attr side = Enum('left', 'right', 'center')
+    
+    #: Links to display on large displays
+    attr links: list = []
+    
+    #: Alias to the content
+    alias content
+    
+    #: Navbar color
+    attr color: str = ''
+    cls << ' '.join((color,))
+    Div:
+        cls = 'nav-wrapper'
+        Container:
+            A: title:
+                cls << 'brand-logo {}'.format('' if side == 'left' else side)
+            Block: content:
+                Ul:
+                    cls = "hide-on-med-and-down {}".format(
+                        'left' if side == 'left' else 'right')
+                    Looper:
+                        iterable << links
+                        Li: 
+                            A:
+                                text << link.text
+                                href << link.url
+
+# ==============================================================================
+# Card components
+# ==============================================================================
+enamldef Card(Div): card:
+    #: Card with a title, caption
+    tag = 'div'
+    
+    #: Card title
+    attr title: str = ""
+    
+    #: Image source
+    attr image: str = ""
+    
+    #: Color
+    attr color: str = ''
+    cls << ' '.join(('card', color))    
+    
+    alias content
+    Conditional:
+        condition << bool(image)
+        Div:
+            cls = 'card-image'
+            Img:
+                src << card.image
+            Span:
+                cls = 'card-title'
+                text << card.title
+    Div: 
+        cls = 'card-content'
+        Block: content:
+            Conditional:
+                condition << not bool(image)
+                Span:
+                    cls = 'card-title'
+                    text << card.title
+
+
+enamldef CardActions(Div):
+    tag = 'div'
+    cls = 'card-action'
+
+        

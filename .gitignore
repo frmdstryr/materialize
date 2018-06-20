@@ -1,0 +1,5 @@
+*.pyc
+*.enamlc
+*.egg-info
+__enamlcache__
+__pycache__

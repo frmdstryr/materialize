@@ -1,0 +1,179 @@
+"""
+Copyright (c) 2018, Jairus Martin.
+
+Distributed under the terms of the MIT License.
+
+The full license is in the file LICENSE, distributed with this software.
+
+Created on Jun 19, 2018
+
+@author: jrm
+"""
+from web.components.api import (
+    Div, Input, Label, Textarea, Select, Option, Span, P
+)
+from web.core.api import Looper
+
+
+enamldef FormField(Div):
+    #: Base field class
+    attr disabled = False
+    attr config = {}
+    attr value
+    tag = 'div'
+    cls << 'input-field col {}'.format(config.get('size', 's12'))
+
+
+enamldef IntField(FormField): field:
+    #: Field that converts the value to an int
+    attr value: int = 0
+    alias label
+    alias input
+    Input: input:
+        type = 'number'
+        value << str(field.value)
+        value :: field.value = int(change['value'])
+        attrs << {'disabled':'1'} if disabled else {}
+    Label: label:
+        attrs << {'for':input.name}
+
+
+enamldef FloatField(FormField): field:
+    #: Field that converts the value to a float
+    attr value: float = 0.0
+    alias label
+    alias input
+    Input: input:
+        type = 'number'
+        value << str(field.value)
+        value :: field.value = float(change['value'])
+        attrs << {'disabled':'1'} if disabled else {}
+    Label: label:
+        text << label_text
+        attrs << {'for':input.name}
+
+
+enamldef TextField(FormField): field:
+    #: Field that for text inputs
+    attr value = ""
+    alias label
+    alias input
+    Input: input:
+        type << config.get('style', 'text')
+        value := field.value
+        attrs << {'disabled':'1'} if disabled else {}
+    Label: label:
+        attrs << {'for':input.name}
+
+
+enamldef TextareaField(FormField): field:
+    #: Field that converts the value to a text
+    attr value = ""
+    alias label
+    alias input
+    Textarea: input:
+        cls = 'materialize-textarea'
+        text := field.value
+        attrs << {'disabled':'1'} if disabled else {}
+    Label: label:
+        attrs << {'for':input.name}
+
+
+enamldef CheckboxField(FormField): field:
+    tag = 'p'
+    cls = ''
+    attr value = False
+    alias label
+    alias input
+    Input:
+        #: Hidden input to handle the off state
+        type = 'hidden'
+        #: Inverted
+        value = 'false'
+        name << input.name
+    Input: input:
+        type = 'checkbox'
+        id  = self.name
+        value << 'true' if bool(field.value) else ''
+        value :: field.value = change['value'] == 'true'
+        checked << 'checked' if bool(field.value) else ''
+        checked :: field.value = change['value'].lower() in ('on', 'checked', 'true', '1')
+    Label: label:
+        attrs << {'for': input.id}
+
+
+enamldef SwitchField(FormField): field:
+    cls = 'switch'
+    attr value = False
+    alias label
+    alias input
+    alias lever
+    Label: label:
+        attrs << {'for':input.id}
+    Label:
+        Input: input:
+            type = 'checkbox'
+            id = self.name
+            value << 'on' if bool(field.value) else 'off'
+            checked << 'checked' if bool(field.value) else ''
+            checked :: field.value = change['value'] in ['on', 'checked']
+        Span: lever:
+            cls = "lever"
+
+
+enamldef SelectField(FormField): field:
+    attr options = []
+    attr icons = {}
+    attr multiple = False
+    alias input
+    alias label
+    Select: input:
+        cls << 'multiple' if multiple else ''
+        value <<  str(
+            ','.join([options.index(v) for v in field.value])
+            if multiple else options.index(field.value)
+        )
+        value :: field.value = options[int(change['value'])]
+        Looper:
+            iterable << options
+            Option:
+                attr icon << icons.get(loop_item)
+                text = str(loop_item)
+                value = str(loop_index)
+                selected << loop_item == field.value
+                attrs << {'data-icon':icon} if icon else {}
+    Label: label:
+        attrs = {'for':input.name}
+
+
+enamldef RadioField(FormField): field:
+    cls = ''
+    attr _ref = None
+    attr options = []
+    alias label
+    Label: label:
+        attrs << {'for': '{}'.format(_ref)}
+    Looper:
+        iterable << options
+        P:
+            Input:
+                activated ::
+                    #: Save the name of the first input
+                    if loop_index == 0:
+                        field._ref = self.name
+                    else:
+                        self.name = field._ref
+                type = 'radio'
+                id << '{}-{}'.format(field._ref,loop_index)
+
+                #: If value is used
+                value << str(loop_index)
+                value :: field.value = options[int(change['value'])]
+
+                #: If checked is used
+                checked << "checked" if field.value==loop_item else ""
+                checked :: field.value = options[loop_index]
+
+            Label:
+                text = str(loop_item)
+                attrs = {'for':'{}-{}'.format(field._ref,loop_index)}

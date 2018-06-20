@@ -1,0 +1,118 @@
+"""
+Copyright (c) 2018, Jairus Martin.
+
+Distributed under the terms of the MIT License.
+
+The full license is in the file LICENSE, distributed with this software.
+
+Created on Jun 19, 2018
+
+@author: jrm
+"""
+from web.components.api import Html, Head, Body, Meta, Title, Script, Link
+from web.core.api import Block, Looper
+
+
+enamldef MaterializePage(Html):
+    #:  A page that includes js and css required for materialize
+    
+    #: Title string
+    attr title: str = ""
+    
+    #: Reference to the head element
+    alias head
+    
+    #: Reference to the body element
+    alias body
+    
+    #: Alias to the header block
+    alias header
+    
+    #: Alias to the content block
+    alias content
+    
+    #: Alias to the footer block
+    alias footer
+    
+    #: A block for custom css
+    alias css
+    
+    #: A block for custom js
+    alias js
+    
+    #: Default materialize stylesheets 
+    attr base_stylesheets: list = [
+        '//cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css',
+        '//fonts.googleapis.com/icon?family=Material+Icon',
+    ]
+    
+    #: User stylesheets
+    attr stylesheets: list = []
+    
+    #: Default materialize scripts
+    attr base_scripts: list = [
+        '//code.jquery.com/jquery-3.3.1.min.js',
+        '//cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js',
+    ]
+    
+    #: User scripts
+    attr scripts: list = []
+    
+    #: Document ready script
+    attr document_ready_script: str = """
+    $(document).ready(function() {
+        // Init materialize components
+        $('.button-collapse').sideNav();
+        $('.parallax').parallax();
+        $('select').material_select();
+        $('ul.tabs').tabs();
+        $('.collapsible').collapsible();
+        $('.slider').slider();
+        $('.modal').modal();
+        $('.materialboxed').materialbox();
+        $('.scrollspy').scrollSpy();
+        $('.dropdown-button').dropdown({constrainWidth: false});
+        if ($('.toc-wrapper').size()) {
+        $('.toc-wrapper').pushpin({
+            top: $('.toc-docs').offset().top,
+            bottom: $('.page-footer').offset().top,
+            offset: 0
+        });
+        }
+    });    
+    """
+    
+    Head: head:
+        Meta:
+            attrs = {'charset': 'utf-8'}
+        Meta:
+            attrs = {'http-equiv': 'X-UA-Compatible', 
+                     'content': 'IE=edge,chrome'}
+        Meta:
+            name = "viewport"
+            content = "width=device-width, initial-scale=1.0"
+        Title:
+            text << title
+        Looper:
+            iterable << base_stylesheets+stylesheets
+            Link:
+                rel = 'stylesheet'
+                type = 'text/css'
+                href = loop_item
+        Block: css:
+            pass
+    
+    Body: body:
+        Block: header:
+            pass
+        Block: content:
+            pass
+        Block: footer:
+            pass
+        Block: js:
+            Looper:
+                iterable << base_scripts + scripts
+                Script:
+                    src = loop_item
+            Script:
+                text << document_ready_script
