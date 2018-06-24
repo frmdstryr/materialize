@@ -10,7 +10,9 @@ Created on Jun 19, 2018
 @author: jrm
 """
 from atom.api import Enum
-from web.components.api import Div, Footer, Nav, A, Ul, Li, Img, Span
+from web.components.api import (
+    Div, Footer, Nav, A, Ul, Li, Img, Span, I, H1, H3, H5, P
+)
 from web.core.api import Block, Looper, Conditional
 
 
@@ -127,4 +129,235 @@ enamldef CardActions(Div):
     tag = 'div'
     cls = 'card-action'
 
-        
+
+# ==============================================================================
+# Basic components
+# ==============================================================================
+enamldef Icon(I):
+    tag = 'i'
+    attr side: str = ''
+    attr color: str = ''
+    cls << ' '.join(('material-icons', side, color))
+
+
+enamldef Badge(Span):
+    #: Use text to set the badge count
+    tag = 'span'
+    attr new: bool = False
+    attr color: str = ""
+    attr caption: str = ""
+    cls << ' '.join(('badge', 'new' if new else '', color))
+    attrs << {'data-badge-captio': caption} if caption else {}
+
+
+enamldef Breadcrumbs(Nav): nav:
+    attr path: str = "" # ex. pass in request.path
+    attr color: str = ""
+    attr breadcrumbs << path.strip("/").split("/")
+    tag = 'nav'
+    Div:
+        cls = 'nav-wrapper {}'.format(nav.color)
+        Div: container:
+            cls = 'container'
+            Div:
+                cls = 'col s12'
+                Looper:
+                    iterable << breadcrumbs
+                    A:
+                        href = "/{}/".format("/".join(breadcrumbs[:loop_index+1]))
+                        cls = "breadcrumb"
+                        text = loop_item.title()
+                    
+                    
+enamldef Pagination(Ul):
+    #: Start page
+    attr start: int = 0
+    
+    #: End page
+    attr end: int = 10
+    
+    #: Current page
+    attr current: int = 0
+    attr color: str = ''
+    
+    #: Query string
+    attr query: str = '?p={i}'
+    
+    alias prev
+    alias next
+    tag = 'ul'
+    cls = 'pagination'
+    Conditional:
+        condition << end-start > 0
+        Li:
+            cls << 'disabled' if start == 0 else ''
+            A: prev:
+                Icon:
+                    text = 'chevron_left'
+            Looper:
+                iterable << range(start,end)
+                Li:
+                    cls << ('active'+ color) if loop_index == current else 'waves-effect'
+                    A:
+                        href << query.format(i=loop_index)
+                        text='{}'.format(loop_index+1)
+            A: next:
+                Icon:
+                    text = 'chevron_right'
+# ==============================================================================
+# Buttons
+# ==============================================================================
+enamldef RaisedButton(A):
+    tag = 'a'
+    attr size: str = ""
+    attr color: str = ""
+    attr disabled: bool = False
+    attr _style: str = ""
+    clickable = True
+    cls << ' '.join(('waves-effect waves-light btn', 
+                     color, 
+                     'btn-'+size if size else '', 
+                     _style,
+                     'disabled' if disabled else ''))
+
+
+enamldef FloatingButton(RaisedButton):
+    tag = 'a'
+    size = 'large'
+    _style = 'btn-floating'
+    
+
+enamldef FlatButton(RaisedButton):
+    tag = 'a'
+    _style = 'btn-flat'        
+    
+    
+
+# ==============================================================================
+# Paralax components
+# ==============================================================================
+enamldef Parallax(Div):
+    #: Parallax background image
+    alias image: img.src
+    
+    #: Content block
+    alias content
+
+    #: Optional height
+    attr height = '' 
+    
+    tag = 'div'
+    cls = 'parallax-container'
+    style << 'height: {};'.format(height) if height else ''
+    Div:
+        cls = 'row container'
+        Block: content:
+            pass
+    Div:
+        cls = "parallax"
+        Img: img:
+            pass
+
+
+enamldef TitleParallax(Parallax): 
+    #: Parallax with a title and caption
+    alias title
+    alias caption
+    cls = 'parallax-container valign-wrapper'
+    Block:
+        block = parent.content
+        H1: title:
+            attr color: str = "white"
+            cls << 'header center-align {}-text light'.format(self.color)
+        H5: caption:
+            attr color: str = "white"
+            cls << 'header center-align {}-text light'.format(self.color)
+
+
+enamldef ButtonParallax(TitleParallax): banner:
+    #: Parallax with a title, caption, and button
+    alias button
+    tag = "div"
+    Block:
+        block = parent.content
+        mode = 'append'
+        Div:
+            cls = 'row center'
+            A: button:
+                attr color: str = "white-text"
+                cls << "btn-large waves-effect waves-light {}".format(self.color)
+
+
+# ==============================================================================
+# Media components
+# ==============================================================================
+enamldef MediaSlider(Div):
+    #: Slides should be a list of dictionaries with the format
+    #: {'title': str, 'caption': str, 'image': str, 'align': str}
+    attr slides: list = []
+    tag = 'div'
+    cls = 'slider'
+    Ul:
+        cls = 'slides'
+        Looper:
+            iterable << slides
+            Li:
+                Img:    
+                    src = loop_item.get('image','')
+                Div:
+                    cls = 'caption  {}-align'.format(loop_item.get('align','left'))
+                    H3:
+                        text = loop_item.get('title','')
+                    H5:
+                        cls = 'light grey-text text-lighten-3'
+                        text = loop_item.get('caption','')
+
+enamldef BoxedImage(Img):
+    tag = 'img'
+    cls = "materialboxed"
+    width = "100%"
+
+# ==============================================================================
+# Dropdown menus
+# ==============================================================================
+enamldef DropdownTrigger(A):
+    tag = 'a'
+    href = '#'
+    attr color: str = ""
+    attr trigger: str = ""
+    cls << 'btn dropdown-trigger {}'.format(color)
+    attrs << {'data-target': trigger}
+    
+    
+enamldef DropdownMenu(Ul):
+    tag = 'url'
+    cls = 'dropdown-content'
+    id = 'dropdown-{}'.format(self.ref)
+
+# ==============================================================================
+# Modal components
+# ==============================================================================
+enamldef Modal(Div):
+    tag = 'div'
+    cls = 'modal'
+    alias content
+    alias footer
+    Div:
+        cls = 'modal-content'
+        Block: content:
+            pass
+    Div:
+        cls = 'modal-footer'
+        Block: footer:
+            pass
+
+enamldef ModalAction(A):
+    tag = 'a'
+    cls = "modal-action modal-close waves-effect btn-flat"
+
+enamldef ModalTrigger(A):
+    tag = 'a'
+    attr trigger: str = ""
+    href << "#" + trigger
+    cls = "waves-effect waves-light btn modal-trigger"
+    

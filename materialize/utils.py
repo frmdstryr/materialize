@@ -9,19 +9,21 @@ Created on Jun 19, 2018
 
 @author: jrm
 """
+import sys
+from atom.api import Atom, Member, Unicode, Int, Float, Value
 
 def DynamicModel(obj, label="value"):
     """ Create a model """
-    if isinstance(obj,Member):
+    if isinstance(obj, Member):
         #: No value is set try to get the default
         return obj.validate_mode[1]() # Umm... should use default?
     if isinstance(obj, Atom):
         return obj
     members = {}
     typemap = {
-        int:Int,
-        float:Float,
-        str:Unicode,
+        int: Int,
+        float: Float,
+        str: Unicode,
     }
     
     if sys.version_info.major < 3:

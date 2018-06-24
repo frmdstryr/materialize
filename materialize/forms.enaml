@@ -13,9 +13,10 @@ Created on Apr 17, 2017
 @author: jrm
 """
 import sys
+import datetime
 from atom.api import (
     Atom, Member, Value, Bool, Enum, Event, Float, Int, Str, Unicode, List,
-    Dict, Instance
+    Dict, Instance, Tuple
 )
 from enaml.core.api import Looper, Conditional, DynamicTemplate
 from web.components.api import (
@@ -23,9 +24,10 @@ from web.components.api import (
 )
 from materialize.fields import (
     IntField, FloatField, TextField, TextareaField, CheckboxField, SwitchField, 
-    SelectField, RadioField
+    SelectField, RadioField, DatePickerField, TimePickerField
 )
 from materialize.utils import DynamicModel
+
 
 
 #------------------------------------------------------------------------------
@@ -258,20 +260,67 @@ template FormControl(Attr, Prefix, Layout, MemberType: Instance):
     """
     const label_text = Attr.title().replace("_"," ")
     const styles = Layout.styles.get(Attr, {})
-    Div:
-        cls = styles.get('cls', 'row')
-        Div:
-            cls << 'input-field col {}'.format(styles.get('size', 's12'))
-
-            Label:
-                text = label_text
-                attrs = {'for':Attr}
-    Div:
-        cls = styles.get('cls', 'row')
-        attr obj = getattr(model,Attr) or model.get_member(Attr)
+    Conditional: cond:
+        condition << isinstance(getattr(model, Attr), Atom)
         AutoForm:
-            #inline = True
-            model = DynamicModel(obj)
+            model := getattr(model, Attr)
+    Conditional: 
+        condition << not cond.condition
+        DynamicTemplate:
+            base = FormControl
+            args << (Attr, Prefix, Layout, type(getattr(model, Attr)))
+
+
+template FormControl(Attr, Prefix, Layout, MemberType: datetime.date):
+    """ A template which generates a control for an AutoForm.
+
+    This default specialization displays read-only text for the value.
+
+    Parameters
+    ----------
+    Attr : str
+        The name of the attribute on 'model' being accessed.
+    Layout: FormLayout
+        The layout of the form.
+    MemberType : type
+        The type of the member being accessed.
+
+    """
+    const label_text = Attr.title().replace("_"," ")
+    const styles = Layout.styles.get(Attr, {})
+    Div:
+        cls = styles.get('cls', 'row')
+        DatePickerField:
+            label.text = label_text
+            config = styles
+            input.name = '{}.{}'.format(Prefix, Attr)
+            value := getattr(model, Attr)
+
+
+template FormControl(Attr, Prefix, Layout, MemberType: datetime.time):
+    """ A template which generates a control for an AutoForm.
+
+    This default specialization displays read-only text for the value.
+
+    Parameters
+    ----------
+    Attr : str
+        The name of the attribute on 'model' being accessed.
+    Layout: FormLayout
+        The layout of the form.
+    MemberType : type
+        The type of the member being accessed.
+
+    """
+    const label_text = Attr.title().replace("_"," ")
+    const styles = Layout.styles.get(Attr, {})
+    Div:
+        cls = styles.get('cls', 'row')
+        TimePickerField:
+            label.text = label_text
+            config = styles
+            input.name = '{}.{}'.format(Prefix, Attr)
+            value := getattr(model, Attr)
 
 
 template FormItem(Attr, Prefix, Layout, MemberType):
@@ -318,12 +367,35 @@ def form_spec(obtype, prefix, layout=None):
     """
     items = []
     fields = layout.fields
+    
+    
+    # Handle common types
+    type_map = {
+        Atom: Instance,
+        str: Str,
+        int: Int,
+        float: Float,
+    }
+    
     #fields = fields.split(",") if fields else []
     for name, member in sorted(obtype.members().items(),
                                key=lambda m,l=layout:form_sort(m,layout)):
         if (not name.startswith('_') and (not fields or name in fields)
-            and (not member.metadata or not member.metadata.get('private', False)) ):
-            items.append((name, prefix, layout, type(member)))
+            and (not member.metadata or not member.metadata.get('private', 
+                                                                False))):
+            if isinstance(member, Instance):
+                member_type = member.validate_mode[-1]
+                
+                # Do a nested form
+                if issubclass(member_type, Atom):
+                    member_type = type(member)
+                elif member_type in type_map:
+                    member_type = type_map[member_type]
+            #elif isinstance(member, (Tuple, List)):
+                
+            else:
+                member_type = type(member)
+            items.append((name, prefix, layout, member_type))
     #items.sort(key=form_sort)
     return tuple(items)
 
@@ -405,7 +477,7 @@ enamldef AutoForm(Form):
     attr styles = {}
     attr layout: FormLayout
     attr prefix: str = "form"
-    attrs = {'enctype':"multipart/form-data"}
+    #attrs = {'enctype':"multipart/form-data"}
     DynamicTemplate:
         base = AutoFormBody
         args << (type(model), prefix,

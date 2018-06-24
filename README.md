@@ -6,7 +6,7 @@ Materialize web components for enaml web.
 
 Install with pip
 
-`pip install semantic-ui`
+`pip install materialize-ui`
 
 ### Usage
 

@@ -15,6 +15,7 @@ from web.core.api import Block, Looper
 
 enamldef MaterializePage(Html):
     #:  A page that includes js and css required for materialize
+    tag = 'html'
     
     #: Title string
     attr title: str = ""
@@ -43,7 +44,7 @@ enamldef MaterializePage(Html):
     #: Default materialize stylesheets 
     attr base_stylesheets: list = [
         '//cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css',
-        '//fonts.googleapis.com/icon?family=Material+Icon',
+        '//fonts.googleapis.com/icon?family=Material+Icons',
     ]
     
     #: User stylesheets
@@ -62,23 +63,40 @@ enamldef MaterializePage(Html):
     attr document_ready_script: str = """
     $(document).ready(function() {
         // Init materialize components
-        $('.button-collapse').sideNav();
         $('.parallax').parallax();
-        $('select').material_select();
+        $('.sidenav').sidenav();
+        $('select').formSelect();
         $('ul.tabs').tabs();
         $('.collapsible').collapsible();
         $('.slider').slider();
         $('.modal').modal();
         $('.materialboxed').materialbox();
         $('.scrollspy').scrollSpy();
-        $('.dropdown-button').dropdown({constrainWidth: false});
-        if ($('.toc-wrapper').size()) {
-        $('.toc-wrapper').pushpin({
-            top: $('.toc-docs').offset().top,
-            bottom: $('.page-footer').offset().top,
-            offset: 0
+        $('.dropdown-trigger').dropdown({constrainWidth: false});
+        $('.datepicker').each(function(i, e){
+            var $e = $(e);
+            var options = $e.data('options');
+            if (options.minDate) {
+                options.minDate = new Date(options.minDate);
+            }
+            if (options.maxDate) {
+                options.maxDate = new Date(options.maxDate);
+            }
+            options.onClose = function(d) {
+                $e.val(M.Datepicker.getInstance(e).toString());
+                $e.trigger('input');
+            };
+            $e.datepicker(options);
         });
-        }
+        $('.timepicker').each(function(i, e){
+            var $e = $(e);
+            var options = $e.data('options');
+            options.onCloseEnd = function(d) {
+                $e.val(M.Timepicker.getInstance(e).toString());
+                $e.trigger('input');
+            };
+            $e.timepicker(options);
+        });
     });    
     """
     

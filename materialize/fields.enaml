@@ -9,6 +9,8 @@ Created on Jun 19, 2018
 
 @author: jrm
 """
+import json
+from datetime import datetime, date, time
 from web.components.api import (
     Div, Input, Label, Textarea, Select, Option, Span, P
 )
@@ -78,6 +80,9 @@ enamldef TextareaField(FormField): field:
     Label: label:
         attrs << {'for':input.name}
 
+# ==============================================================================
+# Boolean fields
+# ==============================================================================
 
 enamldef CheckboxField(FormField): field:
     tag = 'p'
@@ -120,6 +125,9 @@ enamldef SwitchField(FormField): field:
         Span: lever:
             cls = "lever"
 
+# ==============================================================================
+# Select fields
+# ==============================================================================
 
 enamldef SelectField(FormField): field:
     attr options = []
@@ -177,3 +185,53 @@ enamldef RadioField(FormField): field:
             Label:
                 text = str(loop_item)
                 attrs = {'for':'{}-{}'.format(field._ref,loop_index)}
+
+# ==============================================================================
+# Date and Time pickers
+# ==============================================================================
+
+enamldef DatePickerField(FormField): field:
+    #: Field that for text inputs
+    attr value: date = datetime.now().date()
+    attr min_date: date
+    attr max_date: date
+    alias label
+    alias input
+    
+    attr options: dict << config.get('options', {})
+    
+    func format_options():
+        r = options.copy()
+        if min_date:
+            r['minDate'] = min_date.isoformat()
+        if max_date:
+            r['maxDate'] = max_date.isoformat()
+        return json.dumps(r)
+    
+    Input: input:
+        cls = 'datepicker'
+        type = 'text'
+        value << field.value.strftime("%b %d, %Y")
+        value :: field.value = datetime.strptime(change['value'], "%b %d, %Y").date()
+        attrs << {'disabled':'1', 'data-options': format_options()
+                  } if disabled else {'data-options': format_options()}
+    Label: label:
+        attrs << {'for':input.name}
+
+
+enamldef TimePickerField(FormField): field:
+    #: Field that for text inputs
+    attr value: time = datetime.datetime.now().time()
+    alias label
+    alias input
+    attr options: dict << config.get('options', {})
+    Input: input:
+        cls = 'timepicker'
+        type = 'text'
+        value << field.value.strftime("%H:%M %p")
+        value :: field.value = datetime.strptime(change['value'], "%H:%M %p").time()
+        attrs << {'disabled':'1', 'data-options': json.dumps(options)
+                  } if disabled else {'data-options': json.dumps(options)}
+    Label: label:
+        attrs << {'for':input.name}
+
