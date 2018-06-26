@@ -69,12 +69,15 @@ enamldef BasicNavbar(Nav):
     #: Alias to the content
     alias content
     
+    #: Alias to the content container
+    alias container
+    
     #: Navbar color
     attr color: str = ''
     cls << ' '.join((color,))
     Div:
         cls = 'nav-wrapper'
-        Container:
+        Container: container:
             A: title:
                 cls << 'brand-logo {}'.format('' if side == 'left' else side)
             Block: content:
@@ -213,7 +216,9 @@ enamldef RaisedButton(A):
     attr color: str = ""
     attr disabled: bool = False
     attr _style: str = ""
-    clickable = True
+    
+    # If no link is given assume this should be handled via websockets
+    clickable << not bool(self.href)
     cls << ' '.join(('waves-effect waves-light btn', 
                      color, 
                      'btn-'+size if size else '', 

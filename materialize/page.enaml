@@ -71,6 +71,7 @@ enamldef MaterializePage(Html):
         $('.slider').slider();
         $('.modal').modal();
         $('.materialboxed').materialbox();
+        $('.tooltipped').tooltip();
         $('.scrollspy').scrollSpy();
         $('.dropdown-trigger').dropdown({constrainWidth: false});
         $('.datepicker').each(function(i, e){

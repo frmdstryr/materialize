@@ -87,25 +87,24 @@ enamldef TextareaField(FormField): field:
 enamldef CheckboxField(FormField): field:
     tag = 'p'
     cls = ''
-    attr value = False
+    attr value: bool = False
     alias label
     alias input
+    Label:
+        attrs << {'for':input.id}
+        Input: input:
+            type = 'checkbox'
+            id  = self.name
+            value << 'true' if bool(field.value) else ''
+            value :: field.value = change['value'] == 'true'
+            checked := field.value
+        Span: label:
+            pass
     Input:
         #: Hidden input to handle the off state
         type = 'hidden'
-        #: Inverted
-        value = 'false'
+        value = ""
         name << input.name
-    Input: input:
-        type = 'checkbox'
-        id  = self.name
-        value << 'true' if bool(field.value) else ''
-        value :: field.value = change['value'] == 'true'
-        checked << 'checked' if bool(field.value) else ''
-        checked :: field.value = change['value'].lower() in ('on', 'checked', 'true', '1')
-    Label: label:
-        attrs << {'for': input.id}
-
 
 enamldef SwitchField(FormField): field:
     cls = 'switch'
@@ -186,15 +185,36 @@ enamldef RadioField(FormField): field:
                 text = str(loop_item)
                 attrs = {'for':'{}-{}'.format(field._ref,loop_index)}
 
+
+enamldef ChipsField(FormField): field:
+    attr options: dict = {}
+    attr value: list = []
+    attr placeholder: str = ""
+    attr limit: int = 100
+    alias input
+    alias label
+    Div: input:
+        cls = 'chips'
+        attr value := field.value
+        attrs << {'data-options': json.dumps({
+                'data': value,
+                'placeholder': placeholder,
+                'limit': limit,
+                'options': options,
+        })}
+    Label: label:
+        attrs = {'for':input.name}
+
+
 # ==============================================================================
 # Date and Time pickers
 # ==============================================================================
 
 enamldef DatePickerField(FormField): field:
     #: Field that for text inputs
-    attr value: date = datetime.now().date()
-    attr min_date: date
-    attr max_date: date
+    attr value: datetime = datetime.now()
+    attr min_date: datetime
+    attr max_date: datetime
     alias label
     alias input
     
@@ -212,7 +232,7 @@ enamldef DatePickerField(FormField): field:
         cls = 'datepicker'
         type = 'text'
         value << field.value.strftime("%b %d, %Y")
-        value :: field.value = datetime.strptime(change['value'], "%b %d, %Y").date()
+        value :: field.value = datetime.strptime(change['value'], "%b %d, %Y")
         attrs << {'disabled':'1', 'data-options': format_options()
                   } if disabled else {'data-options': format_options()}
     Label: label:
@@ -221,7 +241,7 @@ enamldef DatePickerField(FormField): field:
 
 enamldef TimePickerField(FormField): field:
     #: Field that for text inputs
-    attr value: time = datetime.datetime.now().time()
+    attr value: datetime = datetime.now()
     alias label
     alias input
     attr options: dict << config.get('options', {})
@@ -229,7 +249,7 @@ enamldef TimePickerField(FormField): field:
         cls = 'timepicker'
         type = 'text'
         value << field.value.strftime("%H:%M %p")
-        value :: field.value = datetime.strptime(change['value'], "%H:%M %p").time()
+        value :: field.value = datetime.strptime(change['value'], "%H:%M %p")
         attrs << {'disabled':'1', 'data-options': json.dumps(options)
                   } if disabled else {'data-options': json.dumps(options)}
     Label: label:
