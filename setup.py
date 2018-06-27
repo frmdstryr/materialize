@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='materialize-ui',
-    version='0.1.0',
+    version='0.1.1',
     author='CodeLV',
     author_email='frmdstryr@protonmail.com',
     url='https://github.com/codelv/materialize-ui',
@@ -23,4 +23,7 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=['enaml-web'],
     packages=find_packages(),
+    package_data={
+        'materialize': ['*.enaml'],
+    }
 )

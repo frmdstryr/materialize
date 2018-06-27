@@ -74,6 +74,17 @@ enamldef MaterializePage(Html):
         $('.tooltipped').tooltip();
         $('.scrollspy').scrollSpy();
         $('.dropdown-trigger').dropdown({constrainWidth: false});
+        $('.chips').each(function(i, e){
+            var $e = $(e);
+            var options = $e.data('options');
+            var onChipChanged = function(d) {
+                $e.val(M.Chips.getInstance(e).toString());
+                $e.trigger('input');
+            };
+            options.onChipAdd = onChipChanged;
+            options.onChipDelete = onChipChanged;
+            $e.chips(options);
+        });
         $('.datepicker').each(function(i, e){
             var $e = $(e);
             var options = $e.data('options');
