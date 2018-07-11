@@ -169,7 +169,7 @@ enamldef Breadcrumbs(Nav): nav:
                     A:
                         href = "/{}/".format("/".join(breadcrumbs[:loop_index+1]))
                         cls = "breadcrumb"
-                        text = loop_item.title()
+                        text = loop_item.replace("-", " ").title()
                     
                     
 enamldef Pagination(Ul):
@@ -226,7 +226,7 @@ enamldef RaisedButton(A):
                      'disabled' if disabled else ''))
 
 
-enamldef FloatingButton(RaisedButton):
+enamldef FloatingActionButton(RaisedButton):
     tag = 'a'
     size = 'large'
     _style = 'btn-floating'
@@ -330,7 +330,8 @@ enamldef DropdownTrigger(A):
     href = '#'
     attr color: str = ""
     attr trigger: str = ""
-    cls << 'btn dropdown-trigger {}'.format(color)
+    attr _style: str = ""
+    cls << '{} dropdown-trigger {}'.format(_style, color)
     attrs << {'data-target': trigger}
     
     
@@ -366,3 +367,35 @@ enamldef ModalTrigger(A):
     href << "#" + trigger
     cls = "waves-effect waves-light btn modal-trigger"
     
+# ==============================================================================
+# Collapsible components
+# ==============================================================================
+enamldef Accordion(Ul):
+    tag = 'ul'
+    #: Either 'expandable' or 'popout'
+    attr mode: str = ''
+    cls << ' '.join(('collapsible', mode))
+
+
+enamldef AccordionSection(Li):
+    tag = 'li'
+    attr title: str = ""
+    attr icon: str = ""
+    attr active: bool = False
+    cls << ' '.join(('active' if active else '',))
+    alias header
+    alias content
+    Div:
+        cls = 'collapsible-header'
+        text << title
+        Conditional:
+            condition << bool(icon)
+            Icon:
+                text << icon
+        Block: header:
+            pass
+    Div:
+        cls = 'collapsible-body'
+        Block: content:
+            pass
+        
