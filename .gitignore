@@ -3,3 +3,8 @@
 *.egg-info
 __enamlcache__
 __pycache__
+*.kate-swp
+.kdev4/
+build/
+dist/
+*.kdev4

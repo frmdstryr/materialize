@@ -399,3 +399,36 @@ enamldef AccordionSection(Li):
         Block: content:
             pass
         
+# ==============================================================================
+# Preloader components
+# ==============================================================================
+enamldef ProgressBar(Div):
+    tag = 'div'
+    attr indeterminate: bool = False
+    attr progress: int = 0
+    Div:
+        cls << 'indeterminate' if indeterminate else 'determinate'
+        style << '' if indeterminate else 'width: {}%'.format(
+            max(0, min(100, progress)))
+        
+        
+enamldef ActivityIndicator(Div):
+    tag = 'div'
+    attr color: str = ''
+    attr active: bool = True
+    attr size: str = '' # big , '', or small
+    cls << ' '.join(('preloader-wrapper', size, 
+                    'active' if active else ''))
+    Div:
+        cls << ' '.join(('spinner-layer', 
+                         'spinner-{}'.format(color+'-only' if color else 'blue')))
+        Div:
+            cls = 'circle-clipper left'
+            Div:
+                cls = 'circle'
+        Div:
+            cls = 'gap-patch'
+        Div:
+            cls = 'circle-clipper right'
+            Div:
+                cls = 'circle'
