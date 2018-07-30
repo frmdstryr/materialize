@@ -336,7 +336,7 @@ enamldef DropdownTrigger(A):
     
     
 enamldef DropdownMenu(Ul):
-    tag = 'url'
+    tag = 'ul'
     cls = 'dropdown-content'
     id = 'dropdown-{}'.format(self.ref)
 
