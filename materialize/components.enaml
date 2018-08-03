@@ -348,6 +348,7 @@ enamldef Modal(Div):
     cls = 'modal'
     alias content
     alias footer
+    id = "{}".format(self.ref)
     Div:
         cls = 'modal-content'
         Block: content:

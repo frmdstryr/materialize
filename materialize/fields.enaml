@@ -132,6 +132,7 @@ enamldef SelectField(FormField): field:
     attr options = []
     attr icons = {}
     attr multiple = False
+    attr to_string = str
     alias input
     alias label
     Select: input:
@@ -145,7 +146,7 @@ enamldef SelectField(FormField): field:
             iterable << options
             Option:
                 attr icon << icons.get(loop_item)
-                text = str(loop_item)
+                text << to_string(loop_item)
                 value = str(loop_index)
                 selected << loop_item == field.value
                 attrs << {'data-icon':icon} if icon else {}
@@ -157,6 +158,7 @@ enamldef RadioField(FormField): field:
     cls = ''
     attr _ref = None
     attr options = []
+    attr to_string = str
     alias label
     Label: label:
         attrs << {'for': '{}'.format(_ref)}
@@ -182,7 +184,7 @@ enamldef RadioField(FormField): field:
                 checked :: field.value = options[loop_index]
 
             Label:
-                text = str(loop_item)
+                text << to_string(loop_item)
                 attrs = {'for':'{}-{}'.format(field._ref,loop_index)}
 
 
