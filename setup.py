@@ -13,10 +13,10 @@ from setuptools import setup, find_packages
 
 setup(
     name='materialize-ui',
-    version='0.1.6',
+    version='0.1.7',
     author='CodeLV',
     author_email='frmdstryr@protonmail.com',
-    url='https://github.com/codelv/materialize-ui',
+    url='https://github.com/frmdstryr/materialize',
     description='Materailzie web components for enaml-web',
     license="MIT",
     long_description=open('README.md').read(),

@@ -233,7 +233,7 @@ enamldef DatePickerField(FormField): field:
     Input: input:
         cls = 'datepicker'
         type = 'text'
-        value << field.value.strftime("%b %d, %Y")
+        value << field.value.strftime("%b %d, %Y") if field.value else ''
         value :: field.value = datetime.strptime(change['value'], "%b %d, %Y")
         attrs << {'disabled':'1', 'data-options': format_options()
                   } if disabled else {'data-options': format_options()}
