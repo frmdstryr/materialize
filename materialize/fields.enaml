@@ -141,7 +141,10 @@ enamldef SelectField(FormField): field:
             ','.join([options.index(v) for v in field.value if v in options])
             if multiple else (options.index(field.value) if field.value in options else 0)
         )
-        value :: field.value = options[int(change['value'])]
+        value :: 
+            i = int(change['value'])
+            if i < len(options):
+                field.value = options[i]
         Looper:
             iterable << options
             Option:
