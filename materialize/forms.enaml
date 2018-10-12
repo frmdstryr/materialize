@@ -89,12 +89,20 @@ template FormControl(Attr, Prefix, Layout, MemberType: Str):
     const styles = Layout.styles.get(Attr, {})
     Div:
         cls = styles.get('cls', 'row')
-        TextField:
-            label.text = label_text
-            input.name = '{}.{}'.format(Prefix, Attr)
-            config = styles
-            value := getattr(model, Attr)
-
+        Conditional:
+            condition = styles.get("style") != 'textarea'
+            TextField:
+                label.text = label_text
+                input.name = '{}.{}'.format(Prefix, Attr)
+                config = styles
+                value := getattr(model, Attr)
+        Conditional:
+            condition = styles.get("style") == 'textarea'
+            TextareaField:
+                label.text = label_text
+                input.name = '{}.{}'.format(Prefix, Attr)
+                config = styles
+                value := getattr(model, Attr)
 
 template FormControl(Attr, Prefix, Layout, MemberType: Unicode):
     """ A form control template specialization for Unicode members.
@@ -106,11 +114,20 @@ template FormControl(Attr, Prefix, Layout, MemberType: Unicode):
     const styles = Layout.styles.get(Attr, {})
     Div:
         cls = styles.get('cls', 'row')
-        TextField:
-            label.text = label_text
-            input.name = '{}.{}'.format(Prefix, Attr)
-            config = styles
-            value := getattr(model, Attr)
+        Conditional:
+            condition = styles.get("style") != 'textarea'
+            TextField:
+                label.text = label_text
+                input.name = '{}.{}'.format(Prefix, Attr)
+                config = styles
+                value := getattr(model, Attr)
+        Conditional:
+            condition = styles.get("style") == 'textarea'
+            TextareaField:
+                label.text = label_text
+                input.name = '{}.{}'.format(Prefix, Attr)
+                config = styles
+                value := getattr(model, Attr)
 
 
 template FormControl(Attr, Prefix, Layout, MemberType: Float):

@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='materialize-ui',
-    version='0.1.8',
+    version='0.1.9',
     author='CodeLV',
     author_email='frmdstryr@protonmail.com',
     url='https://github.com/frmdstryr/materialize',
