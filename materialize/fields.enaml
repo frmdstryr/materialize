@@ -11,6 +11,8 @@ Created on Jun 19, 2018
 """
 import json
 from datetime import datetime, date, time
+from atom.api import Instance
+from enaml.core.declarative import d_
 from web.components.api import (
     Div, Input, Label, Textarea, Select, Option, Span, P
 )
@@ -127,6 +129,13 @@ enamldef SwitchField(FormField): field:
 # ==============================================================================
 # Select fields
 # ==============================================================================
+class MultiSelect(Select):
+    # Make it also allow lists
+    value = d_(Instance((str, list)))
+    
+    def _default_tag(self):
+        return 'select'
+    
 
 enamldef SelectField(FormField): field:
     attr options = []
@@ -135,23 +144,30 @@ enamldef SelectField(FormField): field:
     attr to_string = str
     alias input
     alias label
-    Select: input:
-        cls << 'multiple' if multiple else ''
+    MultiSelect: input:
+        attrs << {'multiple': '1'} if multiple else {}
         value <<  str(
-            ','.join([options.index(v) for v in field.value if v in options])
+            ','.join([str(options.index(v)) for v in field.value if v in options])
             if multiple else (options.index(field.value) if field.value in options else 0)
         )
         value :: 
-            i = int(change['value'])
-            if i < len(options):
-                field.value = options[i]
+            if multiple:
+                values = change['value']
+                if isinstance(values, str):
+                    values = values.split(",")
+                selected = map(int, values)
+                field.value = [options[i] for i in selected if i < len(options)]
+            else:
+                i = int(change['value'])
+                if i < len(options):
+                    field.value = options[i]
         Looper:
             iterable << options
             Option:
                 attr icon << icons.get(loop_item)
                 text << to_string(loop_item)
                 value = str(loop_index)
-                selected << loop_item == field.value
+                selected << loop_item in field.value if multiple else loop_item == field.value
                 attrs << {'data-icon':icon} if icon else {}
     Label: label:
         attrs = {'for':input.name}
