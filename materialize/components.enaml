@@ -23,14 +23,14 @@ enamldef Container(Div):
     attr color: str = ''
     cls << ' '.join(('container', color))
     tag = 'div'
-    
+
 
 enamldef Row(Div):
     attr color: str = ''
     cls << ' '.join(('row', color))
     tag = 'div'
 
-    
+
 enamldef Col(Div):
     attr size: str = 'l12'
     attr color: str = ''
@@ -50,28 +50,28 @@ enamldef PageCopyright(Div):
     tag = 'div'
     attr color: str = ''
     cls << ' '.join(('footer-copyright', color))
-            
+
 # ==============================================================================
 # Navbar components
 # ==============================================================================
 enamldef BasicNavbar(Nav):
     tag = 'nav'
-    
+
     #: Alias to the title component
     alias title
-    
-    #: left, right, center
-    attr side = Enum('left', 'right', 'center')
-    
+
+    #: Enum('left', 'right', 'center')
+    attr side = 'left'
+
     #: Links to display on large displays
     attr links: list = []
-    
+
     #: Alias to the content
     alias content
-    
+
     #: Alias to the content container
     alias container
-    
+
     #: Navbar color
     attr color: str = ''
     cls << ' '.join((color,))
@@ -86,7 +86,7 @@ enamldef BasicNavbar(Nav):
                         'left' if side == 'left' else 'right')
                     Looper:
                         iterable << links
-                        Li: 
+                        Li:
                             A:
                                 text << link.text
                                 href << link.url
@@ -97,17 +97,17 @@ enamldef BasicNavbar(Nav):
 enamldef Card(Div): card:
     #: Card with a title, caption
     tag = 'div'
-    
+
     #: Card title
     attr title: str = ""
-    
+
     #: Image source
     attr image: str = ""
-    
+
     #: Color
     attr color: str = ''
-    cls << ' '.join(('card', color))    
-    
+    cls << ' '.join(('card', color))
+
     alias content
     Conditional:
         condition << bool(image)
@@ -118,7 +118,7 @@ enamldef Card(Div): card:
             Span:
                 cls = 'card-title'
                 text << card.title
-    Div: 
+    Div:
         cls = 'card-content'
         Block: content:
             Conditional:
@@ -170,22 +170,22 @@ enamldef Breadcrumbs(Nav): nav:
                         href = "/{}/".format("/".join(breadcrumbs[:loop_index+1]))
                         cls = "breadcrumb"
                         text = loop_item.replace("-", " ").title()
-                    
-                    
+
+
 enamldef Pagination(Ul):
     #: Start page
     attr start: int = 0
-    
+
     #: End page
     attr end: int = 10
-    
+
     #: Current page
     attr current: int = 0
     attr color: str = ''
-    
+
     #: Query string
     attr query: str = '?p={i}'
-    
+
     alias prev
     alias next
     tag = 'ul'
@@ -216,12 +216,12 @@ enamldef RaisedButton(A):
     attr color: str = ""
     attr disabled: bool = False
     attr _style: str = ""
-    
+
     # If no link is given assume this should be handled via websockets
     clickable << not bool(self.href)
-    cls << ' '.join(('waves-effect waves-light btn', 
-                     color, 
-                     'btn-'+size if size else '', 
+    cls << ' '.join(('waves-effect waves-light btn',
+                     color,
+                     'btn-'+size if size else '',
                      _style,
                      'disabled' if disabled else ''))
 
@@ -230,13 +230,13 @@ enamldef FloatingActionButton(RaisedButton):
     tag = 'a'
     size = 'large'
     _style = 'btn-floating'
-    
+
 
 enamldef FlatButton(RaisedButton):
     tag = 'a'
-    _style = 'btn-flat'        
-    
-    
+    _style = 'btn-flat'
+
+
 
 # ==============================================================================
 # Paralax components
@@ -244,13 +244,13 @@ enamldef FlatButton(RaisedButton):
 enamldef Parallax(Div):
     #: Parallax background image
     alias image: img.src
-    
+
     #: Content block
     alias content
 
     #: Optional height
-    attr height = '' 
-    
+    attr height = ''
+
     tag = 'div'
     cls = 'parallax-container'
     style << 'height: {};'.format(height) if height else ''
@@ -264,7 +264,7 @@ enamldef Parallax(Div):
             pass
 
 
-enamldef TitleParallax(Parallax): 
+enamldef TitleParallax(Parallax):
     #: Parallax with a title and caption
     alias title
     alias caption
@@ -307,7 +307,7 @@ enamldef MediaSlider(Div):
         Looper:
             iterable << slides
             Li:
-                Img:    
+                Img:
                     src = loop_item.get('image','')
                 Div:
                     cls = 'caption  {}-align'.format(loop_item.get('align','left'))
@@ -333,8 +333,8 @@ enamldef DropdownTrigger(A):
     attr _style: str = ""
     cls << '{} dropdown-trigger {}'.format(_style, color)
     attrs << {'data-target': trigger}
-    
-    
+
+
 enamldef DropdownMenu(Ul):
     tag = 'ul'
     cls = 'dropdown-content'
@@ -367,7 +367,7 @@ enamldef ModalTrigger(A):
     attr trigger: str = ""
     href << "#" + trigger
     cls = "waves-effect waves-light btn modal-trigger"
-    
+
 # ==============================================================================
 # Collapsible components
 # ==============================================================================
@@ -399,7 +399,7 @@ enamldef AccordionSection(Li):
         cls = 'collapsible-body'
         Block: content:
             pass
-        
+
 # ==============================================================================
 # Preloader components
 # ==============================================================================
@@ -407,21 +407,22 @@ enamldef ProgressBar(Div):
     tag = 'div'
     attr indeterminate: bool = False
     attr progress: int = 0
+    cls = 'progress'
     Div:
         cls << 'indeterminate' if indeterminate else 'determinate'
         style << '' if indeterminate else 'width: {}%'.format(
             max(0, min(100, progress)))
-        
-        
+
+
 enamldef ActivityIndicator(Div):
     tag = 'div'
     attr color: str = ''
     attr active: bool = True
     attr size: str = '' # big , '', or small
-    cls << ' '.join(('preloader-wrapper', size, 
+    cls << ' '.join(('preloader-wrapper', size,
                     'active' if active else ''))
     Div:
-        cls << ' '.join(('spinner-layer', 
+        cls << ' '.join(('spinner-layer',
                          'spinner-{}'.format(color+'-only' if color else 'blue')))
         Div:
             cls = 'circle-clipper left'
