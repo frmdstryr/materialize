@@ -37,9 +37,9 @@ enamldef IntField(FormField): field:
         type = 'number'
         value << str(field.value)
         value :: field.value = int(change['value'])
-        attrs << {'disabled':'1'} if disabled else {}
+        attrs << {'disabled': '1'} if disabled else {}
     Label: label:
-        attrs << {'for':input.name}
+        attrs << {'for': input.name}
 
 
 enamldef FloatField(FormField): field:
@@ -51,10 +51,10 @@ enamldef FloatField(FormField): field:
         type = 'number'
         value << str(field.value)
         value :: field.value = float(change['value'])
-        attrs << {'disabled':'1'} if disabled else {}
+        attrs << {'disabled': '1'} if disabled else {}
     Label: label:
         text << label_text
-        attrs << {'for':input.name}
+        attrs << {'for': input.name}
 
 
 enamldef TextField(FormField): field:
@@ -65,9 +65,9 @@ enamldef TextField(FormField): field:
     Input: input:
         type << config.get('style', 'text')
         value := field.value
-        attrs << {'disabled':'1'} if disabled else {}
+        attrs << {'disabled': '1'} if disabled else {}
     Label: label:
-        attrs << {'for':input.name}
+        attrs << {'for': input.name}
 
 
 enamldef TextareaField(FormField): field:
@@ -78,9 +78,9 @@ enamldef TextareaField(FormField): field:
     Textarea: input:
         cls = 'materialize-textarea'
         text := field.value
-        attrs << {'disabled':'1'} if disabled else {}
+        attrs << {'disabled': '1'} if disabled else {}
     Label: label:
-        attrs << {'for':input.name}
+        attrs << {'for': input.name}
 
 # ==============================================================================
 # Boolean fields
@@ -93,7 +93,7 @@ enamldef CheckboxField(FormField): field:
     alias label
     alias input
     Label:
-        attrs << {'for':input.id}
+        attrs << {'for': input.id}
         Input: input:
             type = 'checkbox'
             id  = self.name
@@ -115,7 +115,7 @@ enamldef SwitchField(FormField): field:
     alias input
     alias lever
     Label: label:
-        attrs << {'for':input.id}
+        attrs << {'for': input.id}
     Label:
         Input: input:
             type = 'checkbox'
@@ -132,10 +132,10 @@ enamldef SwitchField(FormField): field:
 class MultiSelect(Select):
     # Make it also allow lists
     value = d_(Instance((str, list)))
-    
+
     def _default_tag(self):
         return 'select'
-    
+
 
 enamldef SelectField(FormField): field:
     attr options = []
@@ -150,7 +150,7 @@ enamldef SelectField(FormField): field:
             ','.join([str(options.index(v)) for v in field.value if v in options])
             if multiple else (options.index(field.value) if field.value in options else 0)
         )
-        value :: 
+        value ::
             if multiple:
                 values = change['value']
                 if isinstance(values, str):
@@ -170,7 +170,7 @@ enamldef SelectField(FormField): field:
                 selected << loop_item in field.value if multiple else loop_item == field.value
                 attrs << {'data-icon':icon} if icon else {}
     Label: label:
-        attrs = {'for':input.name}
+        attrs = {'for': input.name}
 
 
 enamldef RadioField(FormField): field:
@@ -204,7 +204,7 @@ enamldef RadioField(FormField): field:
 
             Label:
                 text << to_string(loop_item)
-                attrs = {'for':'{}-{}'.format(field._ref,loop_index)}
+                attrs = {'for': '{}-{}'.format(field._ref,loop_index)}
 
 
 enamldef ChipsField(FormField): field:
@@ -217,14 +217,16 @@ enamldef ChipsField(FormField): field:
     Div: input:
         cls = 'chips'
         attr value := field.value
-        attrs << {'data-options': json.dumps({
+        attrs << {
+            'data-options': json.dumps({
                 'data': value,
                 'placeholder': placeholder,
                 'limit': limit,
                 'options': options,
-        })}
+            }
+        )}
     Label: label:
-        attrs = {'for':input.name}
+        attrs = {'for': input.name}
 
 
 # ==============================================================================
@@ -233,14 +235,16 @@ enamldef ChipsField(FormField): field:
 
 enamldef DatePickerField(FormField): field:
     #: Field that for text inputs
+    attr message: str = "Please select a date"
+    attr nullable: bool = False
     attr value: datetime = datetime.now()
     attr min_date: datetime
     attr max_date: datetime
     alias label
     alias input
-    
+
     attr options: dict << config.get('options', {})
-    
+
     func format_options():
         r = options.copy()
         if min_date:
@@ -248,20 +252,31 @@ enamldef DatePickerField(FormField): field:
         if max_date:
             r['maxDate'] = max_date.isoformat()
         return json.dumps(r)
-    
+
     Input: input:
         cls = 'datepicker'
         type = 'text'
         value << field.value.strftime("%b %d, %Y") if field.value else ''
-        value :: field.value = datetime.strptime(change['value'], "%b %d, %Y")
-        attrs << {'disabled':'1', 'data-options': format_options()
-                  } if disabled else {'data-options': format_options()}
+        value ::
+            v = change['value']
+            if not v:
+                if nullable:
+                    field.value = None
+                else:
+                    raise ValueError(message)
+            else:
+                field.value = datetime.strptime(v, "%b %d, %Y")
+        attrs << {
+            'disabled':'1', 'data-options': format_options()
+        } if disabled else {'data-options': format_options()}
     Label: label:
-        attrs << {'for':input.name}
+        attrs << {'for': input.name}
 
 
 enamldef TimePickerField(FormField): field:
     #: Field that for text inputs
+    attr nullable: bool = False
+    attr message: str = "Please select a time"
     attr value: datetime = datetime.now()
     alias label
     alias input
@@ -270,9 +285,18 @@ enamldef TimePickerField(FormField): field:
         cls = 'timepicker'
         type = 'text'
         value << field.value.strftime("%H:%M %p")
-        value :: field.value = datetime.strptime(change['value'], "%H:%M %p")
-        attrs << {'disabled':'1', 'data-options': json.dumps(options)
-                  } if disabled else {'data-options': json.dumps(options)}
+        value ::
+            v = change['value']
+            if not v:
+                if nullable:
+                    field.value = None
+                else:
+                    raise ValueError(message)
+            else:
+                field.value = datetime.strptime(v, "%H:%M %p")
+        attrs << {
+            'disabled':'1', 'data-options': json.dumps(options)
+        } if disabled else {'data-options': json.dumps(options)}
     Label: label:
-        attrs << {'for':input.name}
+        attrs << {'for': input.name}
 

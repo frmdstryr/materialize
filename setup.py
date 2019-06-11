@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, Jairus Martin.
+Copyright (c) 2018-2019, Jairus Martin.
 
 Distributed under the terms of the MIT License.
 
@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='materialize-ui',
-    version='0.1.11',
+    version='0.1.12',
     author='CodeLV',
     author_email='frmdstryr@protonmail.com',
     url='https://github.com/frmdstryr/materialize',

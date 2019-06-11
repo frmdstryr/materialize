@@ -215,11 +215,11 @@ enamldef RaisedButton(A):
     attr size: str = ""
     attr color: str = ""
     attr disabled: bool = False
-    attr _style: str = ""
+    attr _style: str = "btn"
 
     # If no link is given assume this should be handled via websockets
     clickable << not bool(self.href)
-    cls << ' '.join(('waves-effect waves-light btn',
+    cls << ' '.join(('waves-effect waves-light',
                      color,
                      'btn-'+size if size else '',
                      _style,
