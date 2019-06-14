@@ -277,14 +277,14 @@ enamldef TimePickerField(FormField): field:
     #: Field that for text inputs
     attr nullable: bool = False
     attr message: str = "Please select a time"
-    attr value: datetime = datetime.now()
+    attr value: time = time.now()
     alias label
     alias input
     attr options: dict << config.get('options', {})
     Input: input:
         cls = 'timepicker'
         type = 'text'
-        value << field.value.strftime("%H:%M %p")
+        value << field.value.strftime("%I:%M %p")
         value ::
             v = change['value']
             if not v:
@@ -293,7 +293,7 @@ enamldef TimePickerField(FormField): field:
                 else:
                     raise ValueError(message)
             else:
-                field.value = datetime.strptime(v, "%H:%M %p")
+                field.value = datetime.strptime(v, "%I:%M %p").time()
         attrs << {
             'disabled':'1', 'data-options': json.dumps(options)
         } if disabled else {'data-options': json.dumps(options)}
