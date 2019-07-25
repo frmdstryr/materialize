@@ -104,8 +104,11 @@ enamldef MaterializePage(Html):
             var $e = $(e);
             var options = $e.data('options');
             options.onCloseEnd = function(d) {
-                $e.val(M.Timepicker.getInstance(e).toString());
-                $e.trigger('input');
+                var picker = M.Timepicker.getInstance(e);
+                if (picker.time) {
+                    $e.val(picker.time + " " + picker.amOrPm);
+                    $e.trigger('input');
+                }
             };
             $e.timepicker(options);
         });
