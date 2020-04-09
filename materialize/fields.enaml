@@ -144,12 +144,19 @@ enamldef SelectField(FormField): field:
     attr to_string = str
     alias input
     alias label
+
+    func format_value(options, value, multiple):
+        """ Format the value to be set on the select field.
+
+        """
+        if multiple:
+            return ','.join([str(options.index(v))
+                             for v in value if v in options])
+        return str(options.index(value)) if value in options else '0'
+
     MultiSelect: input:
         attrs << {'multiple': '1'} if multiple else {}
-        value <<  str(
-            ','.join([str(options.index(v)) for v in field.value if v in options])
-            if multiple else (options.index(field.value) if field.value in options else 0)
-        )
+        value << format_value(options, field.value, multiple)
         value ::
             if multiple:
                 values = change['value']

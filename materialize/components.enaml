@@ -338,7 +338,6 @@ enamldef DropdownTrigger(A):
 enamldef DropdownMenu(Ul):
     tag = 'ul'
     cls = 'dropdown-content'
-    id = 'dropdown-{}'.format(self.ref)
 
 # ==============================================================================
 # Modal components
@@ -348,7 +347,6 @@ enamldef Modal(Div):
     cls = 'modal'
     alias content
     alias footer
-    id = "{}".format(self.ref)
     Div:
         cls = 'modal-content'
         Block: content:
