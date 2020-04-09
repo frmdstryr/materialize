@@ -96,7 +96,6 @@ enamldef CheckboxField(FormField): field:
         attrs << {'for': input.id}
         Input: input:
             type = 'checkbox'
-            id  = self.name
             value << 'true' if bool(field.value) else ''
             value :: field.value = change['value'] == 'true'
             checked := field.value
