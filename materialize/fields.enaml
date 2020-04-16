@@ -168,7 +168,7 @@ enamldef SelectField(FormField): field:
                 if i < len(options):
                     field.value = options[i]
         Looper:
-            iterable << enumerate(options)
+            iterable << tuple(enumerate(options))
             Option:
                 attr option = loop_item[1]
                 attr index = loop_item[0]
@@ -190,7 +190,7 @@ enamldef RadioField(FormField): field:
     Label: label:
         attrs << {'for': '{}'.format(_ref)}
     Looper:
-        iterable << enumerate(options)
+        iterable << tuple(enumerate(options))
         P:
             attr option = loop_item[1]
             attr index = loop_item[0]
