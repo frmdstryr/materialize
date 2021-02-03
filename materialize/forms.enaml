@@ -15,7 +15,7 @@ Created on Apr 17, 2017
 import sys
 import datetime
 from atom.api import (
-    Atom, Member, Value, Bool, Enum, Event, Float, Int, Str, Unicode, List,
+    Atom, Member, Value, Bool, Enum, Event, Float, Int, Str, List,
     Dict, Instance, Tuple
 )
 from enaml.core.api import Looper, Conditional, DynamicTemplate
@@ -23,7 +23,7 @@ from web.components.api import (
     P, Button, Div, Form, Label, Input, Select, Option, Ul, Li, A, Span
 )
 from materialize.fields import (
-    IntField, FloatField, TextField, TextareaField, CheckboxField, SwitchField, 
+    IntField, FloatField, TextField, TextareaField, CheckboxField, SwitchField,
     SelectField, RadioField, DatePickerField, TimePickerField
 )
 from materialize.utils import DynamicModel
@@ -81,31 +81,6 @@ template FormControl(Attr, Prefix, Layout, MemberType: Int):
 
 template FormControl(Attr, Prefix, Layout, MemberType: Str):
     """ A form control template specialization for Str members.
-
-    This control uses a Field to represent the value.
-
-    """
-    const label_text = Attr.title().replace("_"," ")
-    const styles = Layout.styles.get(Attr, {})
-    Div:
-        cls = styles.get('cls', 'row')
-        Conditional:
-            condition = styles.get("style") != 'textarea'
-            TextField:
-                label.text = label_text
-                input.name = '{}.{}'.format(Prefix, Attr)
-                config = styles
-                value := getattr(model, Attr)
-        Conditional:
-            condition = styles.get("style") == 'textarea'
-            TextareaField:
-                label.text = label_text
-                input.name = '{}.{}'.format(Prefix, Attr)
-                config = styles
-                value := getattr(model, Attr)
-
-template FormControl(Attr, Prefix, Layout, MemberType: Unicode):
-    """ A form control template specialization for Unicode members.
 
     This control uses a Field to represent the value.
 
@@ -281,7 +256,7 @@ template FormControl(Attr, Prefix, Layout, MemberType: Instance):
         condition << isinstance(getattr(model, Attr), Atom)
         AutoForm:
             model := getattr(model, Attr)
-    Conditional: 
+    Conditional:
         condition << not cond.condition
         DynamicTemplate:
             base = FormControl
@@ -384,8 +359,8 @@ def form_spec(obtype, prefix, layout=None):
     """
     items = []
     fields = layout.fields
-    
-    
+
+
     # Handle common types
     type_map = {
         Atom: Instance,
@@ -393,23 +368,23 @@ def form_spec(obtype, prefix, layout=None):
         int: Int,
         float: Float,
     }
-    
+
     #fields = fields.split(",") if fields else []
     for name, member in sorted(obtype.members().items(),
                                key=lambda m,l=layout:form_sort(m,layout)):
         if (not name.startswith('_') and (not fields or name in fields)
-            and (not member.metadata or not member.metadata.get('private', 
+            and (not member.metadata or not member.metadata.get('private',
                                                                 False))):
             if isinstance(member, Instance):
                 member_type = member.validate_mode[-1]
-                
+
                 # Do a nested form
                 if issubclass(member_type, Atom):
                     member_type = type(member)
                 elif member_type in type_map:
                     member_type = type_map[member_type]
             #elif isinstance(member, (Tuple, List)):
-                
+
             else:
                 member_type = type(member)
             items.append((name, prefix, layout, member_type))

@@ -10,7 +10,7 @@ Created on Jun 19, 2018
 @author: jrm
 """
 import sys
-from atom.api import Atom, Member, Unicode, Int, Float, Value
+from atom.api import Atom, Member, Str, Int, Float, Value
 
 
 def DynamicModel(obj, label="value"):
@@ -24,11 +24,11 @@ def DynamicModel(obj, label="value"):
     typemap = {
         int: Int,
         float: Float,
-        str: Unicode,
+        str: Str,
     }
 
     if sys.version_info.major < 3:
-        typemap[unicode] = Unicode
+        typemap[unicode] = Str
 
     if isinstance(obj,Value):
         members[label] = obj
