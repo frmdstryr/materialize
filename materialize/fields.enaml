@@ -53,7 +53,6 @@ enamldef FloatField(FormField): field:
         value :: field.value = float(change['value'])
         attrs << {'disabled': '1'} if disabled else {}
     Label: label:
-        text << label_text
         attrs << {'for': input.name}
 
 
